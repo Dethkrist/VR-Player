@@ -191,6 +191,8 @@ typedef void VrPlayerCreatedCallback(
 
 class VrPlayer extends StatefulWidget {
   final VrPlayerCreatedCallback onCreated;
+  final VrPlayerController? controller;
+  final VrPlayerObserver? observer;
   final double x;
   final double y;
 
@@ -206,6 +208,8 @@ class VrPlayer extends StatefulWidget {
     required this.y,
     required this.width,
     required this.height,
+    this.controller,
+    this.observer
   });
 
   @override
@@ -220,6 +224,8 @@ class _VideoPlayerState extends State<VrPlayer> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    if (widget.controller != null) _videoPlayerController = widget.controller!;
+    if (widget.observer != null) _playerObserver = widget.observer!;
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -324,8 +330,12 @@ class _VideoPlayerState extends State<VrPlayer> with WidgetsBindingObserver {
   }
 
   Future<void> onPlatformViewCreated(int id) async {
-    _videoPlayerController = VrPlayerController.init(id);
-    _playerObserver = VrPlayerObserver.init(id);
-    widget.onCreated(_videoPlayerController, _playerObserver);
+      widget.controller == null
+          ? _videoPlayerController = VrPlayerController.init(id)
+          : _videoPlayerController = widget.controller!;
+      widget.observer == null
+          ? _playerObserver = VrPlayerObserver.init(id)
+          : _playerObserver = widget.observer!;
+      widget.onCreated(_videoPlayerController, _playerObserver);
   }
 }
